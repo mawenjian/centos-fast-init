@@ -1,0 +1,147 @@
+#!/bin/bash
+#安装目录
+tmpdir="~"
+#创建安装目录
+#mkdir -p $tmpdir
+
+#安装ShadowSocks服务器
+function ss_install {
+ echo "start install ShadowSocks..\n"
+ yum install python-setuptools && easy_install pip
+ pip install shadowsocks
+ echo "ShadowSocks has been installed successfully..\n"
+}
+
+#安装SoftEtherVPN服务器端
+function vpn_server_install {
+ echo "start install SoftEtherVPN-Server..\n"
+ cd $tmpdir
+ yum -y install gcc
+ wget http://www.softether-download.com/files/softether/v4.19-9582-beta-2015.10.06-tree/Linux/SoftEther_VPN_Server/32bit_-_Intel_x86/softether-vpnserver-v4.19-9582-beta-2015.10.06-linux-x86-32bit.tar.gz
+ tar -zxvf softether-vpnserver-v4.19-9582-beta-2015.10.06-linux-x86-32bit.tar.gz
+ cd vpnserver/
+ ./install.sh
+ cd $tmpdir && rm -f softether-vpnserver-v4.19-9582-beta-2015.10.06-linux-x86-32bit.tar.gz
+ echo "SoftEtherVPN-Server has been installed successfully..\n"
+}
+
+#安装SoftEtherVPN客户端
+function vpn_client_install {
+ echo "start install SoftEtherVPN-Client..\n"
+ cd $tmpdir
+ wget http://www.softether-download.com/files/softether/v4.19-9582-beta-2015.10.06-tree/Linux/SoftEther_VPN_Client/32bit_-_Intel_x86/softether-vpnclient-v4.19-9582-beta-2015.10.06-linux-x86-32bit.tar.gz
+ tar -zxvf softether-vpnclient-v4.19-9582-beta-2015.10.06-linux-x86-32bit.tar.gz
+ cd vpnclient/
+ echo "SoftEtherVPN-Client has been installed successfully..\n"
+}
+
+#安装AnyConnect服务器端（Ocserv）
+function anyconnect_install {
+  echo "not available now!"
+}
+
+#安装端口转发软件Socat
+function socat_install {
+ cd $tmpdir
+ wget –no-cache http://www.convirture.com/repos/definitions/rhel/6.x/convirt.repo -O /etc/yum.repos.d/convirt.repo
+ yum makecache
+ yum -y install socat
+}
+
+#编译start-stop-daemon命令
+function start_stop_daemon {
+ cd $tmpdir
+ wget http://developer.axis.com/download/distribution/apps-sys-utils-start-stop-daemon-IR1_9_18-2.tar.gz
+ tar -zxvf apps-sys-utils-start-stop-daemon-IR1_9_18-2.tar.gz
+ cd apps/sys-utils/start-stop-daemon-IR1_9_18-2/
+ gcc start-stop-daemon.c -o start-stop-daemon
+ chmod 777 start-stop-daemon
+ cp start-stop-daemon /usr/local/sbin
+}
+
+#安装NGINX服务器（编译安装）
+function nginx_install {
+ cd $tmpdir
+ yum install gcc-c++
+ yum -y install zlib zlib-devel openssl openssl--devel pcre pcre-devel
+ wget http://nginx.org/download/nginx-1.9.5.tar.gz
+ tar -zxvf nginx-1.9.5.tar.gz
+ cd nginx-1.9.5
+ ./configure --prefix=/usr/local/nginx
+ make
+ make install
+ cd ..
+ rm -rf nginx-1.9.5
+}
+
+#安装Apache服务器，并设置为开机启动
+function apache_install {
+  yum -y install httpd
+  service httpd start
+  chkconfig httpd on
+  echo "apache has been installed successfully!\n"
+}
+
+#安装MySQL服务器，设置为开机启动，并设置root账户的密码
+function mysql_install {
+  yum -y install mysql mysql-server
+  service mysqld start
+  chkconfig mysqld on
+  echo "next will set the root account password:\n"
+  mysql_secure_installation
+  service mysqld restart
+  echo "mysql has been installed successfully!\n"
+}
+
+#安装PHP执行环境
+function php_install {
+  yum -y install php
+  yum -y install php-mysql php-gd libjpeg* php-imap php-ldap php-odbc php-pear php-xml php-xmlrpc php-mbstring php-mcrypt php-bcmath php-mhash libmcrypt
+  echo "php has been installed successfully!\n"
+}
+
+#安装LAMP（Linux+Apache+MySQL+PHP）执行环境
+function lamp_install {
+  apache_install
+  mysql_install
+  php_install
+  service httpd restart
+  service mysqld restart
+  echo "lamp has been installed successfully!\n"
+}
+
+PS3="Enter option:"
+select option in "Install ShadowSocks Server" "Install SoftEtherVPN Server" "Install SoftEtherVPN Client" "Install AnyConnect Server" "Install Socat" "Install Start_Stop_Daemon" "Install Nginx Server" "Install LAMP Server Suite" "Install Apache Server" "Install MySQL Server" "Install PHP" "Exit"
+do
+        case $option in
+        "Install ShadowSocks Server")
+                ss_install;;
+        "Install SoftEtherVPN Server")
+                vpn_server_install;;
+        "Install SoftEtherVPN Client")
+                vpn_client_install;;
+        "Install AnyConnect Server")
+                anyconnect_install;;
+        "Install Socat")
+                socat_install;;
+        "Install Start_Stop_Daemon")
+                start_stop_daemon;;
+        "Install Nginx Server")
+                nginx_install;;
+        "Install LAMP Server Suite")
+                lamp_install;;
+        "Install Apache Server")
+                apache_install;;
+        "Install MySQL Server")
+                mysql_install;;
+        "Install PHP")
+                php_install;;
+        "Exit")
+                break;;
+        *)
+                clear
+                echo "wrong selection!";;
+        esac
+done
+unset tmpdir
+clear
