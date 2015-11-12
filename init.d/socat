@@ -1,0 +1,42 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          socat
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+### END INIT INFO
+# Copyright Rene Mayrhofer, Gibraltar, 1999
+# This script is distibuted under the GPL
+
+start(){
+        #socat TCP6-LISTEN:4433,reuseaddr,fork TCP4:54.223.154.35:4433 &
+        #socat UDP6-LISTEN:4433,reuseaddr,fork UDP4:54.223.154.35:4433 &
+        #socat TCP4-LISTEN:5353,reuseaddr,fork TCP4:8.8.8.8:53 &
+        #socat UDP4-LISTEN:5353,reuseaddr,fork UDP4:8.8.8.8:53 &
+	socat TCP6-LISTEN:80,fork,su=nobody TCP4:112.127.165.214:80 &
+	#socat TCP6-LISTEN:4433,fork,su=nobody TCP4:54.223.154.35:4433 &
+}
+
+stop(){
+	lsof -i:80
+	lsof -i:4433
+        echo "do it yourselt!"
+}
+
+case "$1" in
+start)
+        start
+        ;;
+stop)
+        stop
+        ;;
+reload)
+        stop
+        start
+        ;;
+*)
+        echo "Usage: $0 {start|reload|stop}"
+        exit 1
+        ;;
+esac

@@ -1,0 +1,35 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          softethervpn
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+### END INIT INFO
+# Copyright Rene Mayrhofer, Gibraltar, 1999
+# This script is distibuted under the GPL
+
+start(){
+       /root/vpnserver/vpnserver start
+}
+
+stop(){
+        /root/vpnserver/vpnserver stop
+}
+
+case "$1" in
+start)
+        start
+        ;;
+stop)
+        stop
+        ;;
+reload)
+        stop
+        start
+        ;;
+*)
+        echo "Usage: $0 {start|reload|stop}"
+        exit 1
+        ;;
+esac
