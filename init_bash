@@ -62,7 +62,7 @@ function start_stop_daemon {
 #安装NGINX服务器（编译安装）
 function nginx_install {
  cd $tmpdir
- yum install gcc-c++
+ yum -y install gcc-c++
  yum -y install zlib zlib-devel openssl openssl--devel pcre pcre-devel
  wget http://nginx.org/download/nginx-1.9.5.tar.gz
  tar -zxvf nginx-1.9.5.tar.gz
@@ -110,8 +110,50 @@ function lamp_install {
   echo "lamp has been installed successfully!\n"
 }
 
+#安装Memcached
+function memcached_install {
+  yum -y install memcached
+  echo "Memcached has been installed successfully! Config file is located at /etc/sysconfig/memcached.\n"
+}
+
+#安装Redis数据库
+function redis_install {
+  cd $tmpdir
+  wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+  rpm -ivh epel-release-6-8.noarch.rpm
+  yum -y install redis
+  echo "Redis has been installed successfully!\n"
+  echo "You can use \"service redis start\" to start the service..\n"
+}
+
+#安装RabbitMQ消息队列
+function rabbitmq_install {
+  cd $tmpdir
+  yum -y install erlang
+  wget https://www.rabbitmq.com/releases/rabbitmq-server/v3.5.6/rabbitmq-server-3.5.6-1.noarch.rpm
+  rrpm --import https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+  yum install rabbitmq-server-3.5.6-1.noarch.rpm
+  echo "RabbitMQ has been installed successfully!\n"
+
+  #启动RabbitMQ
+  service rabbitmq-server start
+  #开启Web管理Portal
+  rabbitmq-plugins enable rabbitmq_management
+  echo "RabbitMQ Management is enabled..\n\n"
+  
+  #设置管理密码
+  echo "RabbitMQ Management Config:\n"
+  read -p "username:" rabbitmqUser
+  read -s -p "password" rabbitmqPasswd
+  rabbitmqctl add_user $rabbitmqUser $rabbitmqPasswd
+  rabbitmqctl set_user_tags $rabbitmqUser administrator
+  rabbitmqctl set_permissions -p / $rabbitmqUser ".*" ".*" ".*"
+  echo "now you can manage your RabbotMQ by visiting http://[ip_addr]:15672 with username[$rabbitmqUser] and password.\n"
+  unset rabbitmqUser rabbitmqPasswd
+}
+
 PS3="Enter option:"
-select option in "Install ShadowSocks Server" "Install SoftEtherVPN Server" "Install SoftEtherVPN Client" "Install AnyConnect Server" "Install Socat" "Install Start_Stop_Daemon" "Install Nginx Server" "Install LAMP Server Suite" "Install Apache Server" "Install MySQL Server" "Install PHP" "Exit"
+select option in "Install ShadowSocks Server" "Install SoftEtherVPN Server" "Install SoftEtherVPN Client" "Install AnyConnect Server" "Install Socat" "Install Start_Stop_Daemon" "Install Nginx Server" "Install LAMP Server Suite" "Install Apache Server" "Install MySQL Server" "Install PHP" "Install Memcached" "Install Redis" "Install Rabbitmq" "Exit"
 do
         case $option in
         "Install ShadowSocks Server")
@@ -136,6 +178,12 @@ do
                 mysql_install;;
         "Install PHP")
                 php_install;;
+        "Install Memcached")
+                memcached_install;;
+        "Install Redis")
+                redis_install;;
+        "Install Rabbitmq")
+                rabbitmq_install;;
         "Exit")
                 break;;
         *)
@@ -145,3 +193,4 @@ do
 done
 unset tmpdir
 clear
+exit 0
