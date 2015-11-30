@@ -152,6 +152,27 @@ function rabbitmq_install {
   unset rabbitmqUser rabbitmqPasswd
 }
 
+#安装stunnel
+#还没有加入function中！！！！！！
+function stunnel_install{
+  cd $tmpdir
+  yum -y install gcc openssl openssl-devel
+  wget https://www.stunnel.org/downloads/stunnel-5.26.tar.gz
+  tar -zxvf stunnel-5.26.tar.gz
+  cd stunnel-5.26
+  ./configure
+  make
+  make install
+  echo "stunnel has been installed successfully!\n"
+  cd .. && rm -rf stunnel-5.26
+  echo "stunnel source floder has been removed..\n"
+  whereis stunnel
+
+  #配置文件
+
+  #开机脚本
+}
+
 PS3="Enter option:"
 select option in "Install ShadowSocks Server" "Install SoftEtherVPN Server" "Install SoftEtherVPN Client" "Install AnyConnect Server" "Install Socat" "Install Start_Stop_Daemon" "Install Nginx Server" "Install LAMP Server Suite" "Install Apache Server" "Install MySQL Server" "Install PHP" "Install Memcached" "Install Redis" "Install Rabbitmq" "Exit"
 do
