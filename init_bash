@@ -67,7 +67,7 @@ function nginx_install {
  wget http://nginx.org/download/nginx-1.9.5.tar.gz
  tar -zxvf nginx-1.9.5.tar.gz
  cd nginx-1.9.5
- ./configure --prefix=/usr/local/nginx
+ ./configure --prefix=/usr/local/nginx --with-http_ssl_module --with-http_flv_module --with-http_sub_module --with-http_realip_module --with-http_gzip_static_module --with-http_stub_status_module
  make
  make install
  cd ..
@@ -171,6 +171,10 @@ function stunnel_install{
   #配置文件
 
   #开机脚本
+}
+
+function dnsmasq_install {
+  yum -y install dnsmasq
 }
 
 PS3="Enter option:"
