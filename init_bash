@@ -7,7 +7,7 @@ tmpdir="~"
 #安装ShadowSocks服务器
 function ss_install {
  echo "start install ShadowSocks..\n"
- yum install python-setuptools && easy_install pip
+ yum -y install python-setuptools && easy_install pip
  pip install shadowsocks
  echo "ShadowSocks has been installed successfully..\n"
 }
@@ -76,6 +76,19 @@ function anyconnect_install {
   make && make install
   echo '/usr/local/libnl/lib/' > /etc/ld.so.conf.d/libnl.conf
   ldconfig
+
+  echo "install ocserv"
+  export LIBNL3_CFLAGS="-I/usr/local/libnl/include/libnl3"
+  export LIBNL3_LIBS="-L//usr/local/libnl/lib/ -lnl-3 -lnl-route-3"
+  export LIBGNUTLS_LIBS="-L/usr/local/gnutls/lib/ -lgnutls"
+  export LIBGNUTLS_CFLAGS="-I/usr/local/gnutls/include/"
+  wget ftp://ftp.infradead.org/pub/ocserv/ocserv-0.10.9.tar.xz
+  tar xvf ocserv-0.10.9.tar.xz
+  cd ocserv-0.10.9
+  ./configure --prefix=/usr/local/ocserv
+  make && make install
+  #echo 'export PATH=$PATH://usr/local/ocserv/sbin/:/usr/local/ocserv/bin/' >> $HOME/.bashrc 
+  #source $HOME/.bashrc 
 }
 
 #安装端口转发软件Socat
@@ -192,7 +205,7 @@ function rabbitmq_install {
 
 #安装stunnel
 #还没有加入function中！！！！！！
-function stunnel_install{
+function stunnel_install {
   cd $tmpdir
   yum -y install gcc openssl openssl-devel
   wget https://www.stunnel.org/downloads/stunnel-5.26.tar.gz
